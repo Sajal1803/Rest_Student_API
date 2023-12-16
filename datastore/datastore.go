@@ -1,8 +1,6 @@
 package datastore
 
 import (
-	"database/sql"
-
 	"gofr.dev/pkg/errors"
 	"gofr.dev/pkg/gofr"
 
@@ -15,47 +13,67 @@ func New() *student {
 	return &student{}
 }
 
-func (s *student) GetByID(ctx *gofr.Context, id string) (*model.Student, error) {
-	var resp model.Student
-
-	err := ctx.DB().QueryRowContext(ctx, " SELECT id,name,age,branch FROM students where id=$1", id).
-		Scan(&resp.ID, &resp.Name, &resp.Age, &resp.Branch)
-	switch err {
-	case sql.ErrNoRows:
-		return &model.Student{}, errors.EntityNotFound{Entity: "student", ID: id}
-	case nil:
-		return &resp, nil
-	default:
-		return &model.Student{}, err
-	}
-}
-
-func (s *student) Create(ctx *gofr.Context, student *model.Student) (*model.Student, error) {
-	var resp model.Student
-
-	err := ctx.DB().QueryRowContext(ctx, "INSERT INTO students (name, age, branch) VALUES($1,$2,$3)"+
-		" RETURNING  id,name,age,branch", student.ID, student.Name, student.Age, student.Branch).Scan(
-		&resp.ID, &resp.Name, &resp.Age, &resp.Branch)
+func (s student) GetByID(ctx *gofr.Context) ([]model.Student, error) {
+	rows, err := ctx.DB().QueryContext(ctx, " SELECT id,name,age,branch FROM students")
 
 	if err != nil {
-		return &model.Student{}, errors.DB{Err: err}
+		return nil, errors.DB{Err: err}
 	}
 
-	return &resp, nil
+	defer rows.Close()
+	students := make([]model.Student, 0)
+	for rows.Next() {
+		var c model.Student
+		err = rows.Scan(&c.ID, &c.Name, &c.Age, &c.Branch)
+		if err != nil {
+			return nil, errors.DB{Err: err}
+		}
+		students = append(students, c)
+	}
+	err = rows.Err()
+
+	if err != nil {
+		return nil, errors.DB{Err: err}
+	}
+	return students, nil
 }
 
-func (s *student) Update(ctx *gofr.Context, student *model.Student) (*model.Student, error) {
-	_, err := ctx.DB().ExecContext(ctx, "UPDATE students SET name=$1,age=$2,branch=$3 WHERE id=$4",
+func (s *student) Create(ctx *gofr.Context, student model.Student) (model.Student, error) {
+	var resp model.Student
+	queryInsert := "INSERT INTO students (name,age,branch) VALUES (?,?,?)"
+
+	result, err := ctx.DB().ExecContext(ctx, queryInsert, student.Name, student.Age, student.Branch)
+
+	if err != nil {
+		return model.Student{}, errors.DB{Err: err}
+	}
+	lastInsertID, err := result.LastInsertId()
+	if err != nil {
+		return model.Student{}, errors.DB{Err: err}
+	}
+
+	querySelect := "SELECT id,name,age,branch FROM students WHERE id = ?"
+	err = ctx.DB().QueryRowContext(ctx, querySelect, lastInsertID).Scan(&resp.ID, &resp.Name, &resp.Age, &resp.Branch)
+
+	if err != nil {
+		return model.Student{}, errors.DB{Err: err}
+	}
+
+	return resp, nil
+}
+
+func (s *student) Update(ctx *gofr.Context, student model.Student) (model.Student, error) {
+	_, err := ctx.DB().ExecContext(ctx, "UPDATE students SET name=?,age=?,branch=? WHERE id=?",
 		student.Name, student.Age, student.Branch, student.ID)
 	if err != nil {
-		return &model.Student{}, errors.DB{Err: err}
+		return model.Student{}, errors.DB{Err: err}
 	}
 
 	return student, nil
 }
 
 func (s *student) Delete(ctx *gofr.Context, id int) error {
-	_, err := ctx.DB().ExecContext(ctx, "DELETE FROM students where id=$1", id)
+	_, err := ctx.DB().ExecContext(ctx, "DELETE FROM students where id=?", id)
 	if err != nil {
 		return errors.DB{Err: err}
 	}

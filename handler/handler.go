@@ -18,26 +18,18 @@ func New(s datastore.Student) handler {
 	return handler{store: s}
 }
 
+type response struct {
+	Students []model.Student
+}
+
 func (h handler) GetByID(ctx *gofr.Context) (interface{}, error) {
-	// ctx.PathParam() returns the path parameter from HTTP request.
-	id := ctx.PathParam("id")
-	if id == "" {
-		return nil, errors.MissingParam{Param: []string{"id"}}
-	}
+	resp, err := h.store.GetByID(ctx)
 
-	if _, err := validateID(id); err != nil {
-		return nil, errors.InvalidParam{Param: []string{"id"}}
-	}
-
-	resp, err := h.store.GetByID(ctx, id)
 	if err != nil {
-		return nil, errors.EntityNotFound{
-			Entity: "student",
-			ID:     id,
-		}
+		return nil, err
 	}
 
-	return resp, nil
+	return response{Students: resp}, nil
 }
 
 func (h handler) Create(ctx *gofr.Context) (interface{}, error) {
@@ -49,7 +41,7 @@ func (h handler) Create(ctx *gofr.Context) (interface{}, error) {
 		return nil, errors.InvalidParam{Param: []string{"body"}}
 	}
 
-	resp, err := h.store.Create(ctx, &student)
+	resp, err := h.store.Create(ctx, student)
 	if err != nil {
 		return nil, err
 	}
@@ -76,7 +68,7 @@ func (h handler) Update(ctx *gofr.Context) (interface{}, error) {
 
 	student.ID = id
 
-	resp, err := h.store.Update(ctx, &student)
+	resp, err := h.store.Update(ctx, student)
 	if err != nil {
 		return nil, err
 	}
