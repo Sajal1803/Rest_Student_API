@@ -8,7 +8,8 @@ This a book rest api for a book store which stores the data of the books present
 
 Sequence Diagram for this Book API:
 
-![sequence Diagram]! (https://github.com/Sajal1803/Rest_Student_API/assets/76404926/8833bb40-a761-445f-a669-1a682e2c1451)
+
+![sequence  ](https://github.com/Sajal1803/Rest_Student_API/assets/76404926/181315ec-7809-448f-a45f-0c98f812520a)
 
 
 
