@@ -19,6 +19,5 @@ func main() {
 	app.DELETE("/students/{id}", h.Delete)
 
 	// starting the server on a custom port
-	app.Server.HTTP.Port = 9092
 	app.Start()
 }
