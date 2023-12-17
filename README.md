@@ -1,9 +1,9 @@
 This a student rest api for a student database which stores the data of the students present in the college and perform CRUD operations.
 
-1. GET: we can get all the books available in the book store.
-2. POST: Add new book to the database.
-3. PUT: Update book details with given id.
-4. DELETE: Delete a book with a given id, which is removed or sold from book store.
+1. GET: we can get all the Students available in the database.
+2. POST: Add new students to the database.
+3. PUT: Update student details with given id.
+4. DELETE: Delete a student with a given id, which is removed or passed out from the college .
 
 
 Sequence Diagram for this Book API:
