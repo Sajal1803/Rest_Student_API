@@ -6,7 +6,7 @@ This a student rest api for a student database which stores the data of the stud
 4. DELETE: Delete a student with a given id, which is removed or passed out from the college .
 
 
-Sequence Diagram for this Book API:
+Sequence Diagram for this Student API:
 
 
 ![sequence  ](https://github.com/Sajal1803/Rest_Student_API/assets/76404926/181315ec-7809-448f-a45f-0c98f812520a)
