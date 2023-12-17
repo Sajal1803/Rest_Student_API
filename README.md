@@ -1,4 +1,4 @@
-This a book rest api for a book store which stores the data of the books present in the bookstore and perform CRUD operations.
+This a student rest api for a student database which stores the data of the students present in the college and perform CRUD operations.
 
 1. GET: we can get all the books available in the book store.
 2. POST: Add new book to the database.
